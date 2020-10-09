@@ -10,6 +10,8 @@
 --
 --     require('ctags')
 --
+-- There will be a "Search > Ctags" menu.
+--
 -- There are four ways to tell Textadept about *tags* files:
 --
 --   1. Place a *tags* file in a project's root directory. This file will be
@@ -236,9 +238,7 @@ function M.goto_tag(tag)
   end
   if not lfs.attributes(tag[2]) then return end
   -- Store the current position in the jump history, if applicable.
-  textadept.history.append(
-    buffer.filename, buffer:line_from_position(buffer.current_pos),
-    buffer.column[buffer.current_pos])
+  textadept.history.record()
   -- Jump to the tag.
   io.open_file(tag[2])
   if not tonumber(tag[3]) then
@@ -252,9 +252,7 @@ function M.goto_tag(tag)
     textadept.editing.goto_line(tonumber(tag[3]))
   end
   -- Store the new position in the jump history.
-  textadept.history.append(
-    buffer.filename, buffer:line_from_position(buffer.current_pos),
-    buffer.column[buffer.current_pos])
+  textadept.history.record()
 end
 
 -- Autocompleter function for ctags.

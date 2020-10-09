@@ -8,6 +8,8 @@ or Textadept's *modules/* directory, and then putting the following in your
 
     require('ctags')
 
+There will be a "Search > Ctags" menu.
+
 There are four ways to tell Textadept about *tags* files:
 
   1. Place a *tags* file in a project's root directory. This file will be
