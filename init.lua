@@ -308,12 +308,11 @@ m_search[#m_search + 1] = {
       for line in io.lines(root_directory .. '/tags') do
         local patt = '^(%S*)\t([^\t]+)\t(.-);"\t?(.*)$'
         local tag, file, ex_cmd = line:match(patt)
-        if tag then
-          ex_cmd = ex_cmd:match('^/^?(.-)$?/$')
-          if ex_cmd and tag:find('^[%w_]+$') then
-            f:write(tag, ' ', ex_cmd, '\\n', file, '\n')
-          end
-        end
+        if not tag then goto continue end
+        ex_cmd = ex_cmd:match('^/^?(.-)$?/$')
+        if not ex_cmd or not tag:find('^[%w_]+$') then goto continue end
+        f:write(tag, ' ', ex_cmd, '\\n', file, '\n')
+        ::continue::
       end
       f:close()
     end
