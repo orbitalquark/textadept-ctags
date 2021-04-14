@@ -157,14 +157,14 @@ local function find_tags(tag)
     local f = io.open(filename)
     if not f then goto continue end
     for line in f:lines() do
-      local tag, file, ex_cmd, ext_fields = line:match(patt)
-      if tag then
+      local name, file, ex_cmd, ext_fields = line:match(patt)
+      if name then
         if file:find('^_HOME/.-%.luad?o?c?$') then
           file = file:gsub('^_HOME', _HOME) -- special case for tadoc tags
         end
         if not file:find('^%a?:?[/\\]') then file = dir .. file end
         if ex_cmd:find('^/') then ex_cmd = ex_cmd:match('^/^?(.-)$?/$') end
-        tags[#tags + 1] = {tag, file:gsub('\\\\', '\\'), ex_cmd, ext_fields}
+        tags[#tags + 1] = {name, file:gsub('\\\\', '\\'), ex_cmd, ext_fields}
         found = true
       elseif found then
         break -- tags are sorted, so no more matches exist in this file
