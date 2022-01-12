@@ -105,6 +105,10 @@ Parameters:
 
 * *`tag`*: The tag to jump to the source of.
 
+Return:
+
+* whether or not a tag was found and jumped to.
+
 
 ## Tables defined by `ctags`
 

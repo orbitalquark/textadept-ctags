@@ -190,6 +190,7 @@ end
 -- Jumps to the source of string *tag* or the source of the word under the caret.
 -- Prompts the user when multiple sources are found.
 -- @param tag The tag to jump to the source of.
+-- @return whether or not a tag was found and jumped to.
 -- @name goto_tag
 function M.goto_tag(tag)
   if not tag then
@@ -199,7 +200,7 @@ function M.goto_tag(tag)
   end
   -- Search for potential tags to jump to.
   local tags = find_tags(tag)
-  if #tags == 0 then return end
+  if #tags == 0 then return false end
   -- Prompt the user to select a tag from multiple candidates or automatically pick the only one.
   if #tags > 1 then
     local items = {}
@@ -214,12 +215,12 @@ function M.goto_tag(tag)
       columns = {_L['Name'], _L['Filename'], _L['Line:'], _L['Extra Information']}, items = items,
       search_column = 2
     }
-    if button < 1 then return end
+    if button < 1 then return false end
     tag = tags[i]
   else
     tag = tags[1]
   end
-  if not lfs.attributes(tag[2]) then return end
+  if not lfs.attributes(tag[2]) then return false end
   -- Store the current position in the jump history, if applicable.
   textadept.history.record()
   -- Jump to the tag.
@@ -236,6 +237,7 @@ function M.goto_tag(tag)
   end
   -- Store the new position in the jump history.
   textadept.history.record()
+  return true
 end
 
 -- Autocompleter function for ctags.
