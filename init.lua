@@ -271,14 +271,14 @@ m_search[#m_search + 1] = {
     if not root_directory then return end
     local ctags_flags = M.ctags_flags[root_directory]
     if type(ctags_flags) == 'function' then ctags_flags = ctags_flags() end
+    if ctags_flags ~= M.LUA_GENERATOR then
+      os.spawn(string.format('"%s" %s', M.ctags, ctags_flags or '-R'), root_directory):wait()
+    end
     local api_command = M.api_commands[root_directory]
     if type(api_command) == 'function' then api_command = api_command() end
     if ctags_flags == M.LUA_GENERATOR or api_command == M.LUA_GENERATOR then
       os.spawn('luadoc -d . --doclet tadoc .', root_directory,
         {string.format('LUA_PATH=%s/modules/lua/?.lua;;', _HOME)}):wait()
-    end
-    if ctags_flags ~= M.LUA_GENERATOR then
-      os.spawn(string.format('"%s" %s', M.ctags, ctags_flags or '-R'), root_directory):wait()
     end
     if api_command then
       if api_command ~= M.LUA_GENERATOR then os.spawn(api_command, root_directory):wait() end
