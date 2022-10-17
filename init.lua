@@ -52,7 +52,7 @@
 --
 -- ### Key Bindings
 --
--- Windows, Linux, BSD | macOS | Terminal | Command
+-- Windows and Linux | macOS | Terminal | Command
 -- -|-|-|-
 -- **Search**| | |
 -- F12 | F12 | F12 | Goto Ctag
@@ -210,12 +210,12 @@ function M.goto_tag(tag)
       items[#items + 1] = tag[3]:match('^%s*(.+)$') -- strip indentation
       items[#items + 1] = tag[4]:match('^%a?%s*(.*)$') -- ignore kind
     end
-    local button, i = ui.dialogs.filteredlist{
-      title = _L['Go To'],
+    local i = ui.dialogs.list{
+      title = _L['Goto Tag'],
       columns = {_L['Name'], _L['Filename'], _L['Line:'], _L['Extra Information']}, items = items,
       search_column = 2
     }
-    if button < 1 then return false end
+    if not i then return false end
     tag = tags[i]
   else
     tag = tags[1]
@@ -260,8 +260,10 @@ m_search[#m_search + 1] = {
   title = _L['Ctags'],
   {_L['Goto Ctag'], M.goto_tag},
   {_L['Goto Ctag...'], function()
-    local button, name = ui.dialogs.standard_inputbox{title = _L['Goto Tag']}
-    if button == 1 then M.goto_tag(name) end
+    local name = ui.dialogs.input{
+      title = _L['Goto Tag'], button1 = _L['OK'], button2 = _L['Cancel']
+    }
+    if name and name ~= '' then M.goto_tag(name) end
   end},
   SEPARATOR,
   {_L['Autocomplete Tag'], function() textadept.editing.autocomplete('ctag') end},

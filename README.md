@@ -50,7 +50,7 @@ tags and api files.
 
 ## Key Bindings
 
-Windows, Linux, BSD | macOS | Terminal | Command
+Windows and Linux | macOS | Terminal | Command
 -|-|-|-
 **Search**| | |
 F12 | F12 | F12 | Goto Ctag
