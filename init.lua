@@ -55,8 +55,8 @@
 -- Windows and Linux | macOS | Terminal | Command
 -- -|-|-|-
 -- **Search**| | |
--- F12 | F12 | F12 | Goto Ctag
--- Shift+F12 | ⇧F12 | S-F12 | Goto Ctag...
+-- F12 | F12 | F12 | Go to Ctag
+-- Shift+F12 | ⇧F12 | S-F12 | Go to Ctag...
 --
 -- @field _G.textadept.editing.autocompleters.ctag (function)
 --   Autocompleter function for ctags. (Names only; not context-sensitive).
@@ -114,11 +114,11 @@ local _L = _L
 if not rawget(_L, 'Ctags') then
   -- Dialogs.
   _L['Extra Information'] = 'Extra Information'
-  _L['Goto Tag'] = 'Goto Tag'
+  _L['Go To Tag'] = 'Go To Tag'
   -- Menu.
   _L['Ctags'] = '_Ctags'
-  _L['Goto Ctag'] = '_Goto Ctag'
-  _L['Goto Ctag...'] = 'G_oto Ctag...'
+  _L['Go To Ctag'] = '_Go To Ctag'
+  _L['Go To Ctag...'] = 'G_o To Ctag...'
   _L['Autocomplete Tag'] = '_Autocomplete Tag'
   _L['Generate Project Tags and API'] = 'Generate _Project Tags and API'
 end
@@ -189,7 +189,7 @@ end
 ---
 -- Jumps to the source of string *tag* or the source of the word under the caret.
 -- Prompts the user when multiple sources are found.
--- @param tag The tag to jump to the source of.
+-- @param tag The tag to go to the source of.
 -- @return whether or not a tag was found and jumped to.
 -- @name goto_tag
 function M.goto_tag(tag)
@@ -198,7 +198,7 @@ function M.goto_tag(tag)
     local e = buffer:word_end_position(buffer.current_pos, true)
     tag = buffer:text_range(s, e)
   end
-  -- Search for potential tags to jump to.
+  -- Search for potential tags to go to.
   local tags = find_tags(tag)
   if #tags == 0 then return false end
   -- Prompt the user to select a tag from multiple candidates or automatically pick the only one.
@@ -211,7 +211,7 @@ function M.goto_tag(tag)
       items[#items + 1] = tag[4]:match('^%a?%s*(.*)$') -- ignore kind
     end
     local i = ui.dialogs.list{
-      title = _L['Goto Tag'],
+      title = _L['Go To Tag'],
       columns = {_L['Name'], _L['Filename'], _L['Line:'], _L['Extra Information']}, items = items,
       search_column = 2
     }
@@ -258,11 +258,9 @@ m_search[#m_search + 1] = SEPARATOR
 -- LuaFormatter off
 m_search[#m_search + 1] = {
   title = _L['Ctags'],
-  {_L['Goto Ctag'], M.goto_tag},
-  {_L['Goto Ctag...'], function()
-    local name = ui.dialogs.input{
-      title = _L['Goto Tag'], button1 = _L['OK'], button2 = _L['Cancel']
-    }
+  {_L['Go To Ctag'], M.goto_tag},
+  {_L['Go To Ctag...'], function()
+    local name = ui.dialogs.input{title = _L['Go To Tag']}
     if name and name ~= '' then M.goto_tag(name) end
   end},
   SEPARATOR,
@@ -302,6 +300,6 @@ m_search[#m_search + 1] = {
 }
 -- LuaFormatter on
 keys.f12 = M.goto_tag
-keys['shift+f12'] = m_search[_L['Ctags']][_L['Goto Ctag...']][2]
+keys['shift+f12'] = m_search[_L['Ctags']][_L['Go To Ctag...']][2]
 
 return M
