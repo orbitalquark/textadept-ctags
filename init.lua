@@ -1,6 +1,5 @@
 -- Copyright 2007-2023 Mitchell. See LICENSE.
 
---[[ This comment is for LuaDoc.
 ---
 -- Utilize Ctags with Textadept.
 --
@@ -57,30 +56,20 @@
 -- **Search**| | |
 -- F12 | F12 | F12 | Go to Ctag
 -- Shift+F12 | ⇧F12 | S-F12 | Go to Ctag...
---
--- @field _G.textadept.editing.autocompleters.ctag (function)
---   Autocompleter function for ctags. (Names only; not context-sensitive).
--- @field ctags (string)
---   Path to the ctags executable.
---   The default value is `'ctags'`.
--- @field generate_default_api (bool)
---   Whether or not to generate simple api documentation files based on *tags* file contents. For
---   example, functions are documented with their signatures and source file paths.
---   This *api* file is generated in the same directory as *tags* and can be
---   read by `textadept.editing.show_documentation` as long as it was added to
---   `textadept.editing.api_files` for a given language.
---   The default value is `true`.
--- @field LUA_FLAGS (string)
---   A set of command-line options for ctags that better parses Lua code.
---   Combine this with other flags in [`ctags.ctags_flags`]() if Lua files will be parsed.
--- @field LUA_GENERATOR (string)
---   Placeholder value that indicates Textadept's built-in Lua tags and api file generator
---   should be used instead of ctags. Requires LuaDoc to be installed.
-module('ctags')]]
-
+-- @module ctags
 local M = {}
 
+---
+-- Path to the ctags executable.
+-- The default value is `'ctags'`.
 M.ctags = 'ctags'
+---
+-- Whether or not to generate simple api documentation files based on *tags* file contents. For
+-- example, functions are documented with their signatures and source file paths.
+-- This *api* file is generated in the same directory as *tags* and can be read by
+-- `textadept.editing.show_documentation` as long as it was added to `textadept.editing.api_files`
+-- for a given language.
+-- The default value is `true`.
 M.generate_default_api = true
 
 ---
@@ -100,6 +89,9 @@ M.ctags_flags = {}
 -- @name api_commands
 M.api_commands = {}
 
+---
+-- A set of command-line options for ctags that better parses Lua code.
+-- Combine this with other flags in [`ctags.ctags_flags`]() if Lua files will be parsed.
 M.LUA_FLAGS = table.concat({
   '--langdef=luax', '--langmap=luax:.lua',
   [[--regex-luax="/^\s*function\s+([[:alnum:]_]+[.:])*([[:alnum:]_]+)\(/\2/f/"]],
@@ -107,6 +99,9 @@ M.LUA_FLAGS = table.concat({
   [[--regex-luax="/^([[:alnum:]_]+\.)*([[:alnum:]_]+)\s*=\s*[{]/\2/t/"]]
 }, ' ')
 
+---
+-- Placeholder value that indicates Textadept's built-in Lua tags and api file generator should
+-- be used instead of ctags. Requires LuaDoc to be installed.
 M.LUA_GENERATOR = 'LUA_GENERATOR'
 
 -- Localizations.
@@ -191,7 +186,6 @@ end
 -- Prompts the user when multiple sources are found.
 -- @param tag The tag to go to the source of.
 -- @return whether or not a tag was found and jumped to.
--- @name goto_tag
 function M.goto_tag(tag)
   if not tag then
     local s = buffer:word_start_position(buffer.current_pos, true)
@@ -240,8 +234,10 @@ function M.goto_tag(tag)
   return true
 end
 
--- Autocompleter function for ctags.
+---
+-- Autocompleter function for ctags. (Names only; not context-sensitive).
 -- Does not remove duplicates.
+-- @function _G.textadept.editing.autocompleters.ctag
 textadept.editing.autocompleters.ctag = function()
   local completions = {}
   local s = buffer:word_start_position(buffer.current_pos, true)

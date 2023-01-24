@@ -53,47 +53,47 @@ tags and api files.
 Windows and Linux | macOS | Terminal | Command
 -|-|-|-
 **Search**| | |
-F12 | F12 | F12 | Goto Ctag
-Shift+F12 | ⇧F12 | S-F12 | Goto Ctag...
-
+F12 | F12 | F12 | Go to Ctag
+Shift+F12 | ⇧F12 | S-F12 | Go to Ctag...
 
 ## Fields defined by `ctags`
 
 <a id="ctags.LUA_FLAGS"></a>
-### `ctags.LUA_FLAGS` (string)
+### `ctags.LUA_FLAGS` 
 
 A set of command-line options for ctags that better parses Lua code.
-  Combine this with other flags in [`ctags.ctags_flags`](#ctags.ctags_flags) if Lua files will be parsed.
+Combine this with other flags in [`ctags.ctags_flags`](#ctags.ctags_flags) if Lua files will be parsed.
 
 <a id="ctags.LUA_GENERATOR"></a>
-### `ctags.LUA_GENERATOR` (string)
+### `ctags.LUA_GENERATOR` 
 
-Placeholder value that indicates Textadept's built-in Lua tags and api file generator
-  should be used instead of ctags. Requires LuaDoc to be installed.
-
-<a id="textadept.editing.autocompleters.ctag"></a>
-### `textadept.editing.autocompleters.ctag` (function)
-
-Autocompleter function for ctags. (Names only; not context-sensitive).
+Placeholder value that indicates Textadept's built-in Lua tags and api file generator should
+be used instead of ctags. Requires LuaDoc to be installed.
 
 <a id="ctags.ctags"></a>
-### `ctags.ctags` (string)
+### `ctags.ctags` 
 
 Path to the ctags executable.
-  The default value is `'ctags'`.
+The default value is `'ctags'`.
 
 <a id="ctags.generate_default_api"></a>
-### `ctags.generate_default_api` (bool)
+### `ctags.generate_default_api` 
 
 Whether or not to generate simple api documentation files based on *tags* file contents. For
-  example, functions are documented with their signatures and source file paths.
-  This *api* file is generated in the same directory as *tags* and can be
-  read by `textadept.editing.show_documentation` as long as it was added to
-  `textadept.editing.api_files` for a given language.
-  The default value is `true`.
+example, functions are documented with their signatures and source file paths.
+This *api* file is generated in the same directory as *tags* and can be read by
+`textadept.editing.show_documentation` as long as it was added to `textadept.editing.api_files`
+for a given language.
+The default value is `true`.
 
 
 ## Functions defined by `ctags`
+
+<a id="_G.textadept.editing.autocompleters.ctag"></a>
+### `_G.textadept.editing.autocompleters.ctag`()
+
+Autocompleter function for ctags. (Names only; not context-sensitive).
+Does not remove duplicates.
 
 <a id="ctags.goto_tag"></a>
 ### `ctags.goto_tag`(*tag*)
@@ -103,7 +103,7 @@ Prompts the user when multiple sources are found.
 
 Parameters:
 
-* *`tag`*: The tag to jump to the source of.
+* *tag*:  The tag to go to the source of.
 
 Return:
 
@@ -125,9 +125,5 @@ The user is responsible for adding the generated api file to
 
 Map of project root paths to string command-line options, or functions that return such
 strings, that are passed to ctags when generating project tags.
-
-See also:
-
-* [`ctags.LUA_FLAGS`](#ctags.LUA_FLAGS)
 
 ---
