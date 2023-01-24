@@ -24,30 +24,20 @@
 --
 -- Textadept will use any and all *tags* files based on the above rules.
 --
--- ### Generating Ctags and API Documentation
+-- ### Generating Ctags
 --
--- This module can also help generate Ctags files and API documentation files that can be read
--- by Textadept. This is typically configured per-project. For example, a C project might want
--- to generate tags and API documentation for all files and subdirectories in a *src/* directory:
+-- This module can also help generate Ctags files that can be read by Textadept. This is
+-- typically configured per-project. For example, a C project might want to generate tags for
+-- all files and subdirectories in a *src/* directory:
 --
 --     ctags.ctags_flags['/path/to/project'] = '-R src/'
---     table.insert(textadept.editing.api_files.ansi_c, '/path/to/project/api')
 --
--- A Lua project has a couple of options for generating tags and API documentation:
+-- A Lua project has a couple of options for generating tags:
 --
 --     -- Use ctags with some custom flags for improved Lua parsing.
 --     ctags.ctags_flags['/path/to/project'] = ctags.LUA_FLAGS
---     table.insert(textadept.editing.api_files.lua, '/path/to/project/api')
 --
---     -- Use Textadept's tags and api generator, which depends on LuaDoc
---     -- (https://keplerproject.github.io/luadoc/) being installed.
---     ctags.ctags_flags['/path/to/project'] = ctags.LUA_GENERATOR
---     ctags.api_commands['/path/to/project'] = ctags.LUA_GENERATOR
---     table.insert(require('lua').tags, '/path/to/project/tags')
---     table.insert(textadept.editing.api_files.lua, '/path/to/project/api')
---
--- Then, invoking Search > Ctags > Generate Project Tags and API menu item will generate the
--- tags and api files.
+-- Then, invoking Search > Ctags > Generate Project Tags menu item will generate the tags file.
 --
 -- ### Key Bindings
 --
@@ -63,31 +53,14 @@ local M = {}
 -- Path to the ctags executable.
 -- The default value is `'ctags'`.
 M.ctags = 'ctags'
----
--- Whether or not to generate simple api documentation files based on *tags* file contents. For
--- example, functions are documented with their signatures and source file paths.
--- This *api* file is generated in the same directory as *tags* and can be read by
--- `textadept.editing.show_documentation` as long as it was added to `textadept.editing.api_files`
--- for a given language.
--- The default value is `true`.
-M.generate_default_api = true
 
 ---
 -- Map of project root paths to string command-line options, or functions that return such
 -- strings, that are passed to ctags when generating project tags.
--- @class table
--- @name ctags_flags
 -- @see LUA_FLAGS
 M.ctags_flags = {}
 
----
--- Map of project root paths to string commands, or functions that return such strings, that
--- generate an *api* file that Textadept can read via `textadept.editing.show_documentation()`.
--- The user is responsible for adding the generated api file to
--- `textadept.editing.api_files[lexer]` for each lexer name the file applies to.
--- @class table
--- @name api_commands
-M.api_commands = {}
+M.api_commands = {} -- legacy
 
 ---
 -- A set of command-line options for ctags that better parses Lua code.
@@ -98,11 +71,6 @@ M.LUA_FLAGS = table.concat({
   [[--regex-luax="/^\s*local\s+function\s+([[:alnum:]_]+)\(/\1/F/"]],
   [[--regex-luax="/^([[:alnum:]_]+\.)*([[:alnum:]_]+)\s*=\s*[{]/\2/t/"]]
 }, ' ')
-
----
--- Placeholder value that indicates Textadept's built-in Lua tags and api file generator should
--- be used instead of ctags. Requires LuaDoc to be installed.
-M.LUA_GENERATOR = 'LUA_GENERATOR'
 
 -- Localizations.
 local _L = _L
@@ -115,7 +83,7 @@ if not rawget(_L, 'Ctags') then
   _L['Go To Ctag'] = '_Go To Ctag'
   _L['Go To Ctag...'] = 'G_o To Ctag...'
   _L['Autocomplete Tag'] = '_Autocomplete Tag'
-  _L['Generate Project Tags and API'] = 'Generate _Project Tags and API'
+  _L['Generate Project Tags'] = 'Generate _Project Tags'
 end
 
 -- Searches all available tags files tag *tag* and returns a table of tags found.
@@ -154,9 +122,6 @@ local function find_tags(tag)
     for line in f:lines() do
       local name, file, ex_cmd, ext_fields = line:match(patt)
       if name then
-        if file:find('^_HOME/.-%.luad?o?c?$') then
-          file = file:gsub('^_HOME', _HOME) -- special case for tadoc tags
-        end
         if not file:find('^%a?:?[/\\]') then file = dir .. file end
         if ex_cmd:find('^/') then ex_cmd = ex_cmd:match('^/^?(.-)$?/$') end
         tags[#tags + 1] = {name, file:gsub('\\\\', '\\'), ex_cmd, ext_fields}
@@ -262,36 +227,12 @@ m_search[#m_search + 1] = {
   SEPARATOR,
   {_L['Autocomplete Tag'], function() textadept.editing.autocomplete('ctag') end},
   SEPARATOR,
-  {_L['Generate Project Tags and API'], function()
+  {_L['Generate Project Tags'], function()
     local root_directory = io.get_project_root()
     if not root_directory then return end
     local ctags_flags = M.ctags_flags[root_directory]
     if type(ctags_flags) == 'function' then ctags_flags = ctags_flags() end
-    if ctags_flags ~= M.LUA_GENERATOR then
-      os.spawn(string.format('"%s" %s', M.ctags, ctags_flags or '-R'), root_directory):wait()
-    end
-    local api_command = M.api_commands[root_directory]
-    if type(api_command) == 'function' then api_command = api_command() end
-    if ctags_flags == M.LUA_GENERATOR or api_command == M.LUA_GENERATOR then
-      os.spawn('luadoc -d . --doclet tadoc .', root_directory,
-        {string.format('LUA_PATH=%s/modules/lua/?.lua;;', _HOME)}):wait()
-    end
-    if api_command then
-      if api_command ~= M.LUA_GENERATOR then os.spawn(api_command, root_directory):wait() end
-    elseif M.generate_default_api then
-      -- Generate from ctags file.
-      local f = assert(io.open(root_directory .. '/api', 'wb'))
-      for line in io.lines(root_directory .. '/tags') do
-        local patt = '^(%S*)\t([^\t]+)\t(.-);"\t?(.*)$'
-        local tag, file, ex_cmd = line:match(patt)
-        if not tag then goto continue end
-        ex_cmd = ex_cmd:match('^/^?(.-)$?/$')
-        if not ex_cmd or not tag:find('^[%w_]+$') then goto continue end
-        f:write(tag, ' ', ex_cmd, '\\n', file, '\n')
-        ::continue::
-      end
-      f:close()
-    end
+    os.spawn(string.format('"%s" %s', M.ctags, ctags_flags or '-R'), root_directory):wait()
   end}
 }
 -- LuaFormatter on
