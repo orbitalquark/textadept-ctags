@@ -216,26 +216,25 @@ end
 local m_search = textadept.menu.menubar[_L['Search']]
 local SEPARATOR = {''}
 m_search[#m_search + 1] = SEPARATOR
--- LuaFormatter off
 m_search[#m_search + 1] = {
-  title = _L['Ctags'],
-  {_L['Go To Ctag'], M.goto_tag},
-  {_L['Go To Ctag...'], function()
-    local name = ui.dialogs.input{title = _L['Go To Tag']}
-    if name and name ~= '' then M.goto_tag(name) end
-  end},
-  SEPARATOR,
-  {_L['Autocomplete Tag'], function() textadept.editing.autocomplete('ctag') end},
-  SEPARATOR,
-  {_L['Generate Project Tags'], function()
-    local root_directory = io.get_project_root()
-    if not root_directory then return end
-    local ctags_flags = M.ctags_flags[root_directory]
-    if type(ctags_flags) == 'function' then ctags_flags = ctags_flags() end
-    os.spawn(string.format('"%s" %s', M.ctags, ctags_flags or '-R'), root_directory):wait()
-  end}
+  title = _L['Ctags'], --
+  {_L['Go To Ctag'], M.goto_tag}, {
+    _L['Go To Ctag...'], function()
+      local name = ui.dialogs.input{title = _L['Go To Tag']}
+      if name and name ~= '' then M.goto_tag(name) end
+    end
+  }, SEPARATOR, --
+  {_L['Autocomplete Tag'], function() textadept.editing.autocomplete('ctag') end}, --
+  SEPARATOR, {
+    _L['Generate Project Tags'], function()
+      local root_directory = io.get_project_root()
+      if not root_directory then return end
+      local ctags_flags = M.ctags_flags[root_directory]
+      if type(ctags_flags) == 'function' then ctags_flags = ctags_flags() end
+      os.spawn(string.format('"%s" %s', M.ctags, ctags_flags or '-R'), root_directory):wait()
+    end
+  }
 }
--- LuaFormatter on
 keys.f12 = M.goto_tag
 keys['shift+f12'] = m_search[_L['Ctags']][_L['Go To Ctag...']][2]
 
